@@ -1,0 +1,73 @@
+version: '3'
+
+volumes:
+  wp:
+    name: wp
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/jyim/data/wp
+      o: bind
+  db:
+    name: db
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/jyim/data/db
+      o: bind
+
+services:
+  nginx:
+   build:
+     context: ./requirements/nginx
+     dockerfile: Dockerfile  image: nginx
+   container_name: nginx
+   depends_on:
+     - wordpress
+   ports:
+     - "443:443"
+   volumes:
+     - wp:/var/www/html/
+   restart: always
+   #tty: true
+   networks:
+     - network
+  wordpress:
+   build:
+     context: ./requirements/wordpress
+     dockerfile: Dockerfile
+   image: wordpress
+   container_name: wordpress
+   depends_on:
+     - mariadb
+   #ports:
+   #  - "9000:9000"
+   volumes:
+     - wp:/var/www/html/
+   env_file:
+     - .env
+   restart: always
+   #tty: true
+   networks:
+     - network
+  mariadb:
+    build:
+      context: ./requirements/mariadb
+      dockerfile: Dockerfile
+    image: mariadb
+    container_name: mariadb
+    #ports:
+    #  - "3306:3306"
+    volumes:
+      - db:/var/lib/mysql
+    env_file:
+      - .env
+    restart: always
+    #tty: true
+    networks:
+      - network
+
+networks:
+  network:
+    name: inception
+    driver: bridge
