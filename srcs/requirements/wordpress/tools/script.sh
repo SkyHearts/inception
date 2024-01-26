@@ -18,9 +18,24 @@ if [ ! -f /var/www/html/wp-config.php ]; then
 	#wp config create --dbname=$MYSQL_DATABASE --dbuser=$MYSQL_USER --dbpass=$MYSQL_PASSWORD --dbhost=$MYSQL_HOSTNAME --dbcharset="utf8" --dbcollate="utf8_general_ci" --allow-root
 	wp core install --allow-root --url=${WP_URL} --title=${WP_TITLE} --admin_user=${WP_ADMIN_USR} --admin_password=${WP_ADMIN_PWD} --admin_email=${WP_ADMIN_EMAIL} --skip-email --allow-root
 	wp user create --allow-root ${WP_USR} ${WP_EMAIL} --user_pass=${WP_PWD};
-	#wp theme install --allow-root /var/www/html/tools/tronar.zip --activate
+
+	echo "Wordpress: Install theme..."
+	wp theme install --allow-root astra --activate
+
+	#Redis
+	wp plugin install --allow-root redis-cache --activate
+	wp config set WP_REDIS_HOST redis --allow-root
+	wp config set WP_REDIS_PORT 6379 --raw --allow-root
+	wp config set WP_CACHE_KEY_SALT $WP_URL --allow--root
+	wp config set WP_REDIS_CLIENT phpredis --allow-root
+	wp plugin update --all --allow-root
+	wp redis enable --allow-root
+
+	# Get Log
 	wp config set WP_DEBUG true --allow-root
 	wp config set WP_DEBUG_LOG true --allow-root
+
+	chmod 777 /var/www/html/wp-content/object-cache.php;
 fi
 
 /usr/sbin/php-fpm7.3 -F
