@@ -3,13 +3,13 @@ all:
                 echo "MariaDB Directory exist"; \
         else \
                 echo "Create MariaDB Directory"; \
-                mkdir -p "./data/db"; \
+                mkdir -p "/home/jyim/data/db"; \
         fi
         @if [ -d "./data/wp" ]; then \
                 echo "Wordpress Directory exist"; \
         else \
                 echo "Create Wordpress Directory"; \
-                mkdir -p "./data/wp"; \
+                mkdir -p "/home/jyim/data/wp"; \
         fi
 
         @docker compose -f ./srcs/docker-compose.yml up -d --build

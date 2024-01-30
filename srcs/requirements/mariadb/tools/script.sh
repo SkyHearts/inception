@@ -2,8 +2,12 @@
 
 
 #/etc/init.d/mysql start
-service mysql start
+#service mysql start
 
+if [ ! -d "/run/mysqld" ]; then
+    mkdir -p /run/mysqld
+    chown -R mysql:mysql /run/mysqld
+fi
 
 if [ -d "/var/lib/mysql/$MYSQL_DATABASE" ]
 then
@@ -21,25 +25,29 @@ else
 #You will be asked about removing anonymous MySQL users, disallowing remote root logins, removing the test database, and
 #reloading privilege tables to ensure the previous changes take effect properly.
 
-#mysql_secure_installation << _EOF_
-#Y
-#jyim1234
-#jyim1234
-#Y
-#n
-#Y
-#Y
-#_EOF_
+mysql_secure_installation << _EOF_
+Y
+jyim1234
+jyim1234
+Y
+n
+Y
+Y
+_EOF_
 
 echo "CREATE WORDPRESS DATABASE";
-echo "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE;" | mysql
-echo "CREATE USER IF NOT EXISTS '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';" | mysql
-echo "GRANT ALL PRIVILEGES ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'%';" | mysql
-echo "ALTER USER 'root'@'localhost' IDENTIFIED BY '$MARIADB_ROOT_PASSWORD';" | mysql
-echo "FLUSH PRIVILEGES;" | mysql
+echo "CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE;" | mysql -uroot
+echo "CREATE USER IF NOT EXISTS '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';" | mysql -uroot
+echo "GRANT ALL PRIVILEGES ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'%';" | mysql -uroot
+echo "ALTER USER 'root'@'localhost' IDENTIFIED BY '$MARIADB_ROOT_PASSWORD';" | mysql -uroot
+echo "FLUSH PRIVILEGES;" | mysql -uroot -p$MYSQL_ROOT_PASSWORD
+
+sed -i "s|password =|password = $MYSQL_ROOT_PASSWORD|g" /etc/mysql/debian.cnf
+echo "Run /etc/init.d/mysql stop"
+/etc/init.d/mysql stop
 
 fi
 
-service mysql stop
+echo "Exit Script"
 
 exec "$@"

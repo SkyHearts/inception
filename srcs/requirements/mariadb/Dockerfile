@@ -1,6 +1,6 @@
 FROM debian:buster
 # Intall and update
-RUN apt-get update
+RUN apt-get -y update
 RUN apt-get install -y mariadb-server
 
 RUN mkdir -p /var/run/mysqld \
@@ -17,5 +17,5 @@ RUN chmod +x /script.sh
 #CMD [ "/script.sh" ]
 ENTRYPOINT ["./script.sh"]
 
-#CMD ["mysqld", "--bind-address=0.0.0.0"]
-CMD ["mysqld"]
+CMD ["mysqld", "--bind-address=0.0.0.0"]
+#CMD ["mysqld"]

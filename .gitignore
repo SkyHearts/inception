@@ -1,1 +1,7 @@
+.gitignore
 .env
+note.txt
+env.txt
+sample-50-server.cnf
+sample-mariadb.sh
+sample-Dockerfile
